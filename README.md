@@ -2,9 +2,7 @@
 
 Onekey-Translator 是一個瀏覽器擴展，用於一鍵翻譯選取的文字並替換，並支援多種設定功能，包括翻譯目標語言、API Base URL 和 API Key 的設定。
 
-<img src='./img/01.png' >
-
-<img src='./img/02.png' >
+<img src='./img/01.gif' width="500px">
 
 ## 功能
 
@@ -29,7 +27,7 @@ Onekey-Translator 是一個瀏覽器擴展，用於一鍵翻譯選取的文字�
 
 ## 使用
 
-<img src='./img/03.png' >
+<img src='./img/03.png' width="300px">
 
 1.	點擊瀏覽器工具欄中的擴展圖標，進入設定頁面。
 2.	在設定頁面中，選擇翻譯目標語言、輸入 API Base URL 和 API Key，並選擇是否只使用框選功能。然後點擊「保存」。
