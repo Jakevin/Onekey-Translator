@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Onekey-Translator Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 300px;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Extension Settings</h1>
+    <label for="targetLang">Target Language:</label>
+    <select id="targetLang">
+        <option value="zh-tw 繁體中文">Chinese-繁中</option>
+        <option value="us-en 美式英文">US English-英文</option>
+        <option value="jp-jp 日本語">Japanese-日本語</option>
+        <option value="ko-KR 韓語">Korean-韓語-한국어</option>
+        <option value="th-TH 泰語">Thai-泰語</option>
+        <option value="vi-VN 越語">Vietnam-越南語</option>
+        <option value="id-ID 印尼語">Indonesia-印尼語</option>
+        <option value="km-KH 高棉文">Khmer-高棉文</option>
+        <option value="en-GB">English-英語(英)</option>
+        <option value="el-GR 希臘語">Greek-希臘語</option>
+        <option value="ru-RU 俄語">Russian-俄語</option>
+        <option value="es-ES 西班牙語">Spanish-西班牙</option>
+        <option value="fr-FR 法語">French-法語</option>
+        <option value="it-IT 義大利語">Italy-義大利語</option>
+        <option value="de-DE 德語">German-德語</option>
+        <option value="hr-HR 克羅埃西亞語">Croatian-克羅埃西亞</option>
+        <option value="pt-PT 葡萄牙語">Portuguese-葡語</option>
+        <option value="nl-NL 荷蘭語">Nederlands-荷蘭語</option>
+        <option value="cs-CZ 捷克語">Czech-čeština-捷克</option>
+        <option value="da-DK 丹麥語">Dansk-丹麥語</option>
+        <option value="fi-FI 芬蘭語">Finnish-芬蘭語</option>
+        <option value="hu-HU 匈牙利語">Hungarian-匈牙利</option>
+        <option value="nb-NO 挪威語">Norwegian-挪威語</option>
+        <option value="pl-PL 波蘭語">Polish-波蘭語</option>
+        <option value="sv-SE 瑞典語">Swedish-瑞典語</option>
+        <option value="sl-SI 斯洛維尼亞語">Slovenski-斯洛維尼亞語</option>
+        <!-- 可以添加更多選項 -->
+    </select>
+    <label for="apiBaseUrl">API Base URL:</label>
+    <input type="text" id="apiBaseUrl" placeholder="Enter the API base URL">
+    <label for="apiKey">API Key:</label>
+    <input type="text" id="apiKey" placeholder="Enter your API key">
+    <label for="apiModel">Model Name:</label>
+    <input type="text" id="apiModel" placeholder="Enter your Model">
+    <label for="useSelectionOnly">
+        <input type="checkbox" id="useSelectionOnly"> 只用框選功能
+    </label>
+    <button id="saveButton">Save</button>
+    <script src="options.js"></script>
+</body>
+
+</html>
