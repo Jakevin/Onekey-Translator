@@ -37,11 +37,98 @@
         input[type="checkbox"] {
             margin-top: 10px;
         }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        #jk-toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #AA3333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 5px;
+            position: fixed;
+            z-index: 1001;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            border-radius: 10px;
+        }
+
+        #jk-toast.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @-webkit-keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <h1>Extension Settings</h1>
+
+    <label for="sourceText">框選文字</label>
+    <textarea id="sourceText" placeholder="Enter the text to translate"></textarea>
+    <button id="translatorButton">再翻譯</button>
+
+    <label for="resultText" style="margin-top: 20px;">翻譯結果</label>
+    <textarea id="resultText"></textarea>
+    <button id="copyButton">複製</button>
+    <hr style="margin-top: 30px;">
+    <h1>Settings</h1>
     <label for="targetLang">Target Language:</label>
     <select id="targetLang">
         <option value="zh-tw 繁體中文">Chinese-繁中</option>
@@ -82,6 +169,7 @@
         <input type="checkbox" id="useSelectionOnly"> 只用框選功能
     </label>
     <button id="saveButton">Save</button>
+    <script src="translate.js"></script>
     <script src="options.js"></script>
 </body>
 

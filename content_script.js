@@ -113,65 +113,31 @@ function hideTranslateButton() {
 
 async function translateFocusedInput() {
     console.log('Translating focused input...');
+    // 加載用戶設置
+    const items = await chrome.storage.sync.get(['targetLang', 'apiBaseUrl', 'apiKey', 'apiModel', 'useSelectionOnly'])
+    targetLang = items.targetLang || 'us-en 美式英文';
+    apiBaseUrl = items.apiBaseUrl || 'https://api.openai.com/v1/chat/completions';
+    apiKey = items.apiKey || '';
+    apiModel = items.apiModel || 'gpt-4o-mini';
+    useSelectionOnly = items.useSelectionOnly || true;
+
+
     let selection = getSelections();
     if (selection.text && selection.text.length > 0) {
-        const translatedText = await getTranslation(selection.text);
+        chrome.runtime.sendMessage({ selections: selection.text });
+
+        const translatedText = await getTranslation(targetLang, apiBaseUrl, apiKey, apiModel, selection.text);
         console.log('Translated text:', translatedText);
+
         navigator.clipboard.writeText(translatedText).then(() => {
+            chrome.runtime.sendMessage({ translations: translatedText });
+
             showToast('翻譯結果已複製到剪貼簿');
         }).catch(err => {
             console.error('Failed to copy: ', err);
         });
     }
     hideTranslateButton();
-}
-
-async function getTranslation(text) {
-    // 加載用戶設置
-    chrome.storage.sync.get(['targetLang', 'apiBaseUrl', 'apiKey', 'apiModel', 'useSelectionOnly'], function (items) {
-        targetLang = items.targetLang || 'us-en 美式英文';
-        apiBaseUrl = items.apiBaseUrl || 'https://api.openai.com/v1/chat/completions';
-        apiKey = items.apiKey || '';
-        apiModel = items.apiModel || 'gpt-4o-mini';
-        useSelectionOnly = items.useSelectionOnly || true;
-    });
-
-
-    const messages = [
-        {
-            "role": "user",
-            "content": `"${text}"，用"${targetLang}"簡短翻譯，不要發音、注解。`
-        }
-    ];
-
-    try {
-        const response = await fetch(apiBaseUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                "model": apiModel,
-                "messages": messages,
-                "max_tokens": 200,
-                stream: false
-            })
-        });
-
-        const responseJson = await response.json();
-        console.log(responseJson);
-
-        if (responseJson.choices && responseJson.choices[0].message.content) {
-            return responseJson.choices[0].message.content.trim();
-        } else {
-            console.error("API response is missing expected data.");
-            return null;
-        }
-    } catch (error) {
-        console.error('Error fetching translation:', error);
-        return null;
-    }
 }
 
 function detectSelect(targetElement, actionAfterSelect) {

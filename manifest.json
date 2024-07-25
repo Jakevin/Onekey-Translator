@@ -4,17 +4,22 @@
     "version": "1.0",
     "description": "一鍵翻框選文字並提供翻譯",
     "permissions": [
-        "activeTab",
-        "storage"
+        "storage",
+        "sidePanel"
     ],
-    "options_page": "options.html",
+    "side_panel": {
+        "default_path": "options.html"
+    },
     "action": {
-        "default_popup": "options.html",
+        "default_title": "一鍵翻譯",
         "default_icon": {
             "16": "icons/icon16.png",
             "48": "icons/icon48.png",
             "128": "icons/icon128.png"
         }
+    },
+    "background": {
+        "service_worker": "background.js"
     },
     "content_scripts": [
         {
@@ -22,7 +27,8 @@
                 "<all_urls>"
             ],
             "js": [
-                "content_script.js"
+                "content_script.js",
+                "translate.js"
             ]
         }
     ]
