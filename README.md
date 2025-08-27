@@ -4,6 +4,8 @@ Onekey-Translator 是一個瀏覽器擴展，用於一鍵翻譯選取的文字�
 
 <img src='./img/01.gif' width="500px">
 
+圖文說明請看：https://jakevin.medium.com/%E4%B8%80%E9%8D%B5%E7%BF%BB%E8%AD%AF-%E7%B6%B2%E9%A0%81%E7%BF%BB%E8%AD%AF%E7%9A%84%E6%96%B0%E5%88%A9%E5%99%A8-d22010bbb5a3
+
 ## 功能
 
 - 一鍵翻譯選取的文字（支援雙擊、三擊選取顯示按鈕）
@@ -15,18 +17,36 @@ Onekey-Translator 是一個瀏覽器擴展，用於一鍵翻譯選取的文字�
 
 ## 使用方式
 
-<img src='./img/03.png' width="300px">
+支援各種相容於OpenAI的API，LM studio與Ollama自然也可以使用
+qwen3-4b-instruct-2507-dwq3s-mlx 日常使用非常推薦！
 
 1.	點擊瀏覽器工具欄中的擴展圖標，進入設定頁。
-2.	在設定頁中，選擇翻譯目標語言、輸入 API Base URL 和 API Key、選擇模型，並可設定 HotKey 與「段落按鍵門檻」。然後點擊「保存」。
-3.	在任何網頁：
-   - 選取文字後，會在選區附近出現「翻譯」按鈕；點擊後顯示譯文並在設定頁面同步更新來源/結果欄位。
-   - 按下 HotKey（預設 Alt/Option）可快速翻譯目前滑鼠按下位置的元素全文，譯文會以區塊方式附加在原內容後方。
-   - 段落翻譯：滑鼠移到右側浮動按鈕，可開啟選單「顯示…／隱藏…」與「全部翻譯」。顯示「…」後，頁面會在符合門檻字數的段落末尾加上「…」按鈕；點擊即可把譯文插入該段落之後。啟用「全部翻譯」時，會自動翻譯視窗內的可見段落，隨捲動持續處理。
 
-提示：設定頁提供「複製結果」按鈕，可快速將最新的譯文複製到剪貼簿。
+<img src='./img/01.webp' width="300px">
+
+2.	在設定頁中，選擇翻譯目標語言、輸入 API Base URL 和 API Key、選擇模型，並可設定 HotKey 與「段落按鍵門檻」。然後點擊「保存」。
+
+3. 臨時輸入框翻譯
+
+<img src='./img/07.webp' width="300px">
+
+4. 全文自動翻譯
+
+<img src='./img/02.webp' width="200px">
+
+<img src='./img/05.webp' width="400px">
+
+5. 彈窗翻譯
+
+<img src='./img/06.webp' width="300px">
+
+<img src='./img/04.png' width="300px">
+
+
 
 ## 安裝
+
+直接到商店下載：https://chromewebstore.google.com/detail/onekey-translator/gobdpcobbgbcmbojhpdonhhfogpicahd?authuser=0&hl=zh-TW
 
 1. 克隆此存儲庫到本地：
    ```bash
