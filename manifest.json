@@ -39,6 +39,7 @@
                 "<all_urls>"
             ],
             "js": [
+                "dom_utils.js",
                 "content_script.js",
                 "translate.js"
             ]

@@ -30,6 +30,21 @@ function ct(key, subs) {
     } catch { return key; }
 }
 
+// ===== 判斷譯文是否為 HTML 片段 =====
+function isLikelyHtmlText(text) {
+    try {
+        if (!text || typeof text !== 'string') return false;
+        const t = text.trim();
+        if (t.length < 3) return false;
+        // 基本標籤檢測（需同時有開關括號與至少一對標籤）
+        if (/[<>]/.test(t) && /<\/?[a-z][\s\S]*>/i.test(t)) return true;
+        // 常見自閉合/換行與 HTML 實體
+        if (/<br\s*\/?\s*>/i.test(t)) return true;
+        if (/&[a-z]{2,10};/.test(t)) return true;
+        return false;
+    } catch { return false; }
+}
+
 async function loadSettingsFromProfiles() {
     try {
         const base = await chrome.storage.sync.get(['activeProfileId', 'hotKey', 'paraMinChars', 'targetLang']);
@@ -456,7 +471,11 @@ async function handleParagraphTranslate(container, btn) {
 
         const wrap = document.createElement('div');
         wrap.className = 'jk-para-translation';
-        wrap.textContent = translated;
+        if (isLikelyHtmlText(translated)) {
+            wrap.innerHTML = translated;
+        } else {
+            wrap.textContent = translated;
+        }
         if (btn && btn.dataset && btn.dataset.segText) {
             btn.insertAdjacentElement('afterend', wrap);
         } else {
@@ -642,8 +661,12 @@ async function translateShiftInput(targetElement, text) {
     span.style.paddingLeft = '12px'
 
     span.className = 'highlight';
-    // Safer insertion to avoid XSS/DOM breakage
-    span.textContent = translatedText;
+    // 若回傳為 HTML 片段則以 innerHTML 呈現，否則使用 textContent
+    if (isLikelyHtmlText(translatedText)) {
+        span.innerHTML = translatedText;
+    } else {
+        span.textContent = translatedText;
+    }
     try {
         targetElement.appendChild(span);
     } catch (e) {
