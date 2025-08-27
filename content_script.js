@@ -30,6 +30,136 @@ function ct(key, subs) {
     } catch { return key; }
 }
 
+// ===== 浮層彈窗：建立/顯示/關閉 =====
+function ensurePopup() {
+    let backdrop = document.getElementById('jk-float-backdrop');
+    let popup = document.getElementById('jk-float-popup');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'jk-float-backdrop';
+        document.body.appendChild(backdrop);
+    }
+    if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'jk-float-popup';
+        const header = document.createElement('div');
+        header.className = 'jk-float-header';
+        const title = document.createElement('span');
+        title.className = 'jk-float-title';
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'jk-float-close';
+        closeBtn.type = 'button';
+        closeBtn.textContent = '×';
+        header.appendChild(title);
+        header.appendChild(closeBtn);
+        const body = document.createElement('div');
+        body.id = 'jk-float-content';
+        popup.appendChild(header);
+        popup.appendChild(body);
+        document.body.appendChild(popup);
+        closeBtn.addEventListener('click', closePopup);
+        backdrop.addEventListener('click', closePopup);
+    }
+    return {
+        backdrop,
+        popup,
+        titleEl: popup.querySelector('.jk-float-title'),
+        contentEl: document.getElementById('jk-float-content')
+    };
+}
+
+function closePopup() {
+    try {
+        const bd = document.getElementById('jk-float-backdrop');
+        const pw = document.getElementById('jk-float-popup');
+        if (bd) bd.style.display = 'none';
+        if (pw) pw.style.display = 'none';
+    } catch { }
+}
+
+function positionPopupNearRect(popup, rect) {
+    try {
+        const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        // 先以顯示但不可見以量測尺寸
+        const prevDisp = popup.style.display;
+        const prevVis = popup.style.visibility;
+        popup.style.display = 'block';
+        popup.style.visibility = 'hidden';
+        const pr = popup.getBoundingClientRect();
+        let w = pr.width || Math.min(480, Math.floor(vw * 0.5));
+        let h = pr.height || Math.min(360, Math.floor(vh * 0.5));
+        let left, top;
+        if (rect && ((rect.width > 0) || (rect.height > 0))) {
+            left = rect.right + window.scrollX + 10;
+            top = rect.bottom + window.scrollY + 10;
+        } else {
+            left = Math.max(10, (vw - w) / 2 + window.scrollX);
+            top = Math.max(10, (vh - h) / 2 + window.scrollY);
+        }
+        // 邊界保護
+        left = Math.min(left, window.scrollX + vw - w - 10);
+        top = Math.min(top, window.scrollY + vh - h - 10);
+        left = Math.max(left, window.scrollX + 10);
+        top = Math.max(top, window.scrollY + 10);
+        popup.style.left = left + 'px';
+        popup.style.top = top + 'px';
+        // 還原可見狀態
+        popup.style.visibility = prevVis || 'visible';
+        popup.style.display = prevDisp || 'block';
+    } catch { }
+}
+
+async function translateToPopup(text) {
+    const ui = ensurePopup();
+    if (ui.titleEl) ui.titleEl.textContent = ct('popup_title');
+    if (ui.contentEl) ui.contentEl.textContent = ct('msg_translating');
+    ui.backdrop.style.display = 'block';
+    ui.popup.style.display = 'block';
+    // 定位於選取區附近（若有）
+    try {
+        const sel = window.getSelection();
+        let rect = null;
+        if (sel && sel.rangeCount > 0) {
+            const r = sel.getRangeAt(sel.rangeCount - 1);
+            // 使用最後一個非零 client rect
+            try {
+                const list = r.getClientRects ? Array.from(r.getClientRects()) : [];
+                const nz = list.filter(rr => rr.width > 0 || rr.height > 0);
+                rect = nz.length > 0 ? nz[nz.length - 1] : r.getBoundingClientRect();
+            } catch { rect = r.getBoundingClientRect(); }
+        }
+        positionPopupNearRect(ui.popup, rect);
+    } catch { }
+
+    // 同步側邊面板「來源」
+    try { chrome.runtime.sendMessage({ selections: text }); } catch { }
+
+    await loadSettingsFromProfiles();
+    const tmCtx = await new Promise((resolve) => {
+        try {
+            chrome.runtime.sendMessage({ type: 'tm:get', limit: 8 }, (res) => {
+                resolve(res && res.ok ? { pairs: res.pairs || [] } : { pairs: [] });
+            });
+        } catch (e) { resolve({ pairs: [] }); }
+    });
+
+    const translated = await getTranslation(targetLang, apiBaseUrl, apiKey, apiModel, text, tmCtx);
+
+    // 同步側邊面板「結果」與 TM
+    try { chrome.runtime.sendMessage({ translations: translated }); } catch { }
+    try { chrome.runtime.sendMessage({ type: 'tm:add', src: text, tgt: translated }); } catch { }
+
+    // 顯示結果（保留可能的 HTML 格式）
+    if (ui.contentEl) {
+        if (isLikelyHtmlText(translated)) {
+            ui.contentEl.innerHTML = translated;
+        } else {
+            ui.contentEl.textContent = translated;
+        }
+    }
+}
+
 // ===== 判斷譯文是否為 HTML 片段 =====
 function isLikelyHtmlText(text) {
     try {
@@ -604,7 +734,7 @@ async function translateDoubleClickInput() {
         hideTranslateButton();
         return;
     }
-    await translateShiftInput(mousedownEvent.target, text);
+    await translateToPopup(text);
     hideTranslateButton();
 }
 
@@ -615,21 +745,7 @@ async function translateFocusedInput() {
     let selection = getSelections();
     console.log('Selection:', selection);
     if (selection.text && selection.text.length > 0) {
-        chrome.runtime.sendMessage({ selections: selection.text });
-
-        const tmCtx = await new Promise((resolve) => {
-            try {
-                chrome.runtime.sendMessage({ type: 'tm:get', limit: 8 }, (res) => {
-                    resolve(res && res.ok ? { pairs: res.pairs || [] } : { pairs: [] });
-                });
-            } catch (e) {
-                resolve({ pairs: [] });
-            }
-        });
-        const translatedText = await getTranslation(targetLang, apiBaseUrl, apiKey, apiModel, selection.text, tmCtx);
-        console.log('Translated text:', translatedText);
-        chrome.runtime.sendMessage({ translations: translatedText });
-        try { chrome.runtime.sendMessage({ type: 'tm:add', src: selection.text, tgt: translatedText }); } catch { }
+        await translateToPopup(selection.text);
 
     }
     hideTranslateButton();
@@ -771,6 +887,58 @@ style.innerHTML = `
 @keyframes fadeout {
     from {bottom: 30px; opacity: 1;}
     to {bottom: 0; opacity: 0;}
+}
+
+/* 浮層彈窗 */
+#jk-float-backdrop {
+    position: fixed;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background: rgba(0,0,0,0.2);
+    z-index: 1003;
+    display: none;
+}
+#jk-float-popup {
+    position: absolute;
+    z-index: 1004;
+    /* 自動依內容寬度收縮，最多 50vw */
+    width: auto;
+    max-width: 50vw;
+    max-height: 50vh;
+    display: inline-block;
+    box-sizing: border-box;
+    background: #fff;
+    color: #111;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    overflow: hidden;
+}
+/* 行動裝置（窄視窗）放寬上限到 80vw */
+@media (max-width: 640px) {
+  #jk-float-popup { max-width: 80vw; }
+}
+#jk-float-popup .jk-float-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #f5f5f7;
+    border-bottom: 1px solid #e5e7eb;
+}
+#jk-float-popup .jk-float-title { font-weight: 600; }
+#jk-float-popup .jk-float-close {
+    appearance: none;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+#jk-float-content {
+    padding: 12px;
+    overflow: auto;
+    max-height: calc(50vh - 42px);
+    white-space: pre-wrap;
 }
 
 /* 段落模式 */
