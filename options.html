@@ -26,7 +26,7 @@
 
         button {
             margin-top: 20px;
-            padding: 10px 20px;
+            padding: 5px 10px;
             background-color: #333;
             color: #fff;
             border: none;
@@ -43,6 +43,19 @@
             padding: 8px;
             margin-top: 5px;
             box-sizing: border-box;
+        }
+
+        /* Auto-height friendly for JS: keep overflow hidden, no manual resize, and a reasonable min-height */
+        #sourceText,
+        #resultText {
+            overflow: hidden;
+            resize: none;
+            min-height: 2.5em;
+        }
+
+        /* Minimal spacing between translator and clear buttons */
+        #clearButton {
+            margin-left: 8px;
         }
 
         #jk-toast {
@@ -115,26 +128,60 @@
                 opacity: 0;
             }
         }
+
+        /* Profiles 下拉與操作列樣式 */
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .profile-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #profileSelect {
+            min-width: 160px;
+        }
+
+        .profile-bar button {
+            padding: 4px 8px;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        @media (max-width:520px) {
+            .settings-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .profile-bar {
+                align-self: flex-end;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <label for="sourceText">框選文字</label>
-    <textarea id="sourceText" placeholder="Enter the text to translate"></textarea>
-    <button id="translatorButton">再翻譯</button>
-
-    <label for="resultText" style="margin-top: 20px;">翻譯結果</label>
-    <textarea id="resultText"></textarea>
-    <button id="copyButton">複製</button>
-    <hr style="margin-top: 30px;">
-    <h1>Settings</h1>
-    <label for="targetLang">Target Language:</label>
+    <label for="sourceText" data-i18n="label_source_text">框選文字</label>
+    <textarea id="sourceText" data-i18n="placeholder_source_text" data-i18n-attr="placeholder"
+        placeholder="Enter the text to translate"></textarea>
+    <button id="translatorButton" data-i18n="btn_translate_again">再翻譯</button> <button id="clearButton" type="button"
+        data-i18n="btn_clear">清除</button>
+    <label for="targetLang" data-i18n="label_target_lang">Target Language:</label>
     <select id="targetLang">
         <option value="zh-tw 繁體中文">Chinese-繁中</option>
         <option value="us-en 美式英文">US English-英文</option>
         <option value="jp-jp 日本語">Japanese-日本語</option>
         <option value="ko-KR 韓語">Korean-韓語-한국어</option>
+        <option value="zh-cn 簡體中文">Chinese-簡中</option>
+        <option value="zh-hk 香港繁中">Chinese-香港繁中</option>
         <option value="th-TH 泰語">Thai-泰語</option>
         <option value="vi-VN 越語">Vietnam-越南語</option>
         <option value="id-ID 印尼語">Indonesia-印尼語</option>
@@ -159,16 +206,43 @@
         <option value="sl-SI 斯洛維尼亞語">Slovenski-斯洛維尼亞語</option>
         <!-- 可以添加更多選項 -->
     </select>
-    <label for="apiBaseUrl">API Base URL:</label>
-    <input type="text" id="apiBaseUrl" placeholder="Enter the API base URL">
-    <label for="apiKey">API Key:</label>
-    <input type="text" id="apiKey" placeholder="Enter your API key">
-    <label for="apiModel">Model Name:</label>
-    <input type="text" id="apiModel" placeholder="Enter your Model">
-    <label for="useSelectionOnly">
-        <input type="checkbox" id="useSelectionOnly"> 只用框選功能
-    </label>
-    <button id="saveButton">Save</button>
+    <label for="resultText" style="margin-top: 20px;" data-i18n="label_result_text">翻譯結果</label>
+    <textarea id="resultText"></textarea>
+    <button id="copyButton" data-i18n="btn_copy">複製</button>
+    <hr style="margin-top: 10px;">
+    <div class="settings-header">
+        <h2 data-i18n="heading_settings">Settings</h2>
+    </div>
+    <label for="profileSelect" data-i18n="title_profile_select">Profile:</label>
+    <select id="profileSelect" title="選擇設定分組" data-i18n="title_profile_select" data-i18n-attr="title">
+        <!-- profiles 下拉會於 options.js 初始化時填入 -->
+    </select>
+    <button id="addProfileBtn" type="button" title="Add" data-i18n="title_add_profile" data-i18n-attr="title">＋</button>
+    <button id="renameProfileBtn" type="button" data-i18n="btn_rename_profile">Rename</button>
+    <button id="deleteProfileBtn" type="button" title="Delete" data-i18n="title_delete_profile"
+        data-i18n-attr="title">－</button>
+    <label for="apiBaseUrl" data-i18n="label_api_base_url">API Base URL:</label>
+    <input type="text" id="apiBaseUrl" placeholder="Enter the API base URL" data-i18n="placeholder_api_base_url"
+        data-i18n-attr="placeholder">
+    <label for="apiKey" data-i18n="label_api_key">API Key:</label>
+    <input type="text" id="apiKey" placeholder="Enter your API key" data-i18n="placeholder_api_key"
+        data-i18n-attr="placeholder">
+    <label for="apiModel" data-i18n="label_api_model">Model Name:</label>
+    <input type="text" id="apiModel" placeholder="Enter your Model" data-i18n="placeholder_api_model"
+        data-i18n-attr="placeholder">
+    <label for="hotKey" data-i18n="label_hotkey">HotKey</label>
+    <select id="hotKey">
+        <option value="altKey">Alt/Option</option>
+        <option value="shiftKey">Shift</option>
+    </select>
+    <label for="paraMinChars" data-i18n="label_para_min_chars">段落按鍵顯示門檻（字數）</label>
+    <input type="number" id="paraMinChars" min="0" step="1" placeholder="20">
+    <br />
+    <button id="saveButton" data-i18n="btn_save">保存/Save</button>
+    <button id="exportSettingsBtn" data-i18n="btn_export_settings" data-i18n-title="title_export_settings"
+        title="Export settings as JSON" style="margin-left: 10px;">Export Settings</button>
+    <button id="importSettingsBtn" data-i18n="btn_import_settings" data-i18n-title="title_import_settings"
+        title="Import settings from JSON">Import Settings</button>
     <script src="translate.js"></script>
     <script src="options.js"></script>
 </body>
