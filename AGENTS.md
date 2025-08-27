@@ -11,7 +11,7 @@
 
 ## 開發、建置與執行
 - 本機載入：`chrome://extensions` → 開發人員模式 → 載入未封裝 → 選取此專案資料夾。
-- 打包範例：`zip -r onekey-translator.zip manifest.json background.js content_script.js translate.js options.html options.js icons img _locales`
+- 打包範例：`zip -r onekey-translator.zip manifest.json background.js content_script.js dom_utils.js translate.js options.html options.js icons _locales`
 - 手測清單：
   - 文字選取後顯示「翻譯」按鈕並可運作。
   - 雙擊/三擊選取時計算座標與按鈕定位正確。
